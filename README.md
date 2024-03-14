@@ -1,2 +1,12 @@
-Dentro de .venv se encuentra el archivo de .ipynb que contiene la api de donde se extraen los datos y la creacion de la tabla de redshift.
-Ademas hay un archivo .env que es donde se obtienen los datos de la conexion
+Extraccion de datos de una API sobre valores de Cryptomonedas
+En este proyecto se extraen datos de la API "https://api.coinlore.net/api/tickers/", se filtran y agregan en una tabla en redshift
+Se utilizan las siguientes librerias:
+  -Requests
+  -Pandas
+  -Datetime
+  -Psycopg2
+  -os
+  -psycopg2.extras
+  -json
+Se instalan usando el archivo requirements.txt. 
+Dentro de la terminal, pip install -r requirements.txt
