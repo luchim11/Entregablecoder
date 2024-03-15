@@ -10,3 +10,5 @@ Se utilizan las siguientes librerias:
   -json
 Se instalan usando el archivo requirements.txt. 
 Dentro de la terminal, pip install -r requirements.txt
+
+Para poder conectarse a redshift se debera completar los datos de la url, data-base, user y pwd
