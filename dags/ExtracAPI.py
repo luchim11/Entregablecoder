@@ -10,23 +10,24 @@ from psycopg2.extras import execute_values
 
 #Obtengo los datos de la API y los visualizo con PANDAS
 def Extraer_data():
-    url = "https://api.coinlore.net/api/tickers/?start=0&limit=100"
-    response = requests.get(url)
-    datos=response.json()
-    return datos
+    url = "https://api.coinlore.net/api/tickers/?start=0&limit=15"
+    url2 = "https://api.coinlore.net/api/tickers/?start=85&limit=15" #las ultimas 15 cryptomonedas del top 100
+    response1 = requests.get(url)
+    datos=response1.json()
 
-datos=Extraer_data()
-df=pd.DataFrame.from_dict(datos['data']).reset_index().rename(columns={"index":'indice'})
+    response2 = requests.get(url2)
+    datos2= response2.json()
 
-hora_actual = pd.to_datetime('now')
-hora_formateada = hora_actual.strftime("%D %H:%M:%S")
-
-#Aplico un filtro de los datos que me interesan y les agrego la hora de Extaccion 
-def Filtrar_data():
-    df_filtrado= df.loc[0:15,['indice','id','symbol','name','rank','price_usd','percent_change_24h','percent_change_1h','market_cap_usd']]
+    for i in datos2['data']:
+        datos['data'].append(i)  
+        
+    df=pd.DataFrame.from_dict(datos['data']).reset_index().rename(columns={"index":'indice'})
+    
 
     hora_actual = pd.to_datetime('now')
     hora_formateada = hora_actual.strftime("%D %H:%M:%S")
+    
+    df_filtrado= df.loc[0:15,['indice','id','symbol','name','rank','price_usd','percent_change_24h','percent_change_1h','market_cap_usd']]
 
     df_filtrado =df_filtrado.assign(Extraction_time =hora_formateada)
 
@@ -38,9 +39,12 @@ def Filtrar_data():
     df_filtrado["percent_change_1h"]= df_filtrado["percent_change_1h"].astype("float64")
 
     df_filtrado["market_cap_usd"]= df_filtrado["market_cap_usd"].astype("float64")
+    
+    df_filtrado=df_filtrado.to_dict()
+    
     return df_filtrado
 
-df_filtrado= Filtrar_data()
+
 
 #Conexion con Amazon redshift
 url= "data-engineer-cluster.cyhh5bfevlmn.us-east-1.redshift.amazonaws.com"
@@ -63,10 +67,11 @@ def conexion_tabla():
         print("No es posible conectarse a Postgres")
         print(e)
 
-
 #Creacion de tabla en redshift
 def cargar_en_postgres():
-    dataframe=df_filtrado
+    df_filtrado= Extraer_data()
+    
+    dataframe=pd.DataFrame(df_filtrado)
     table_name= "ValoresCryptos"
     conn = psycopg2.connect(
             host=url,
@@ -102,9 +107,8 @@ def cargar_en_postgres():
     print('Proceso terminado')
 
 
-#Subida de datos a la base de datos
+"""#Subida de datos a la base de datos
 Extraer_data()
-Filtrar_data()
 conexion_tabla()
-cargar_en_postgres()
+cargar_en_postgres()"""
 

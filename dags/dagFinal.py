@@ -12,7 +12,7 @@ import os
 from psycopg2.extras import execute_values
 
 
-from  ExtracAPI import Extraer_data, Filtrar_data, conexion_tabla, cargar_en_postgres 
+from  ExtracAPI import Extraer_data, conexion_tabla, cargar_en_postgres 
 dag_path = os.getcwd()
 default_args = {
     'start_date': datetime(2024, 4, 2),
@@ -21,8 +21,8 @@ default_args = {
 }
 
 #nombre del dag
-DagEntrega = DAG(
-    dag_id='DagEntrega',
+ingestion_dag = DAG(
+    dag_id='ingestiondata',
     default_args=default_args,
     description='Agregar datos de las top 15 cryptomonedas en una tabla de redshift',
      schedule_interval=timedelta(days=1),
@@ -34,12 +34,6 @@ task_1 = PythonOperator(
     task_id='Extraerdata',
     python_callable=Extraer_data,
     #op_args=["{{ ds }} {{ execution_date.hour }}"],
-    dag=ingestion_dag,
-)
-
-task_2 = PythonOperator(
-    task_id='Filtrardatos',
-    python_callable=Filtrar_data,
     dag=ingestion_dag,
 )
 
@@ -57,4 +51,4 @@ task_4 = PythonOperator(
 
 
 
-task_1 >> task_2 >> task_3 >> task_4
+task_1 >> task_3 >> task_4

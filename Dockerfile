@@ -2,7 +2,7 @@ FROM python:3.9
 
 LABEL version="1.0"
 
-WORKDIR C:\Users\luchi\Base de datos\python\entregable
+WORKDIR /home/app
 
 COPY ExtracAPI.py .
 COPY requirements.txt .
