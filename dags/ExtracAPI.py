@@ -5,6 +5,10 @@ from datetime import date
 
 import psycopg2
 import os 
+from dotenv import load_dotenv
+from email.message import EmailMessage
+import ssl
+import smtplib
 
 from psycopg2.extras import execute_values
 
@@ -27,7 +31,7 @@ def Extraer_data():
     hora_actual = pd.to_datetime('now')
     hora_formateada = hora_actual.strftime("%D %H:%M:%S")
     
-    df_filtrado= df.loc[0:15,['indice','id','symbol','name','rank','price_usd','percent_change_24h','percent_change_1h','market_cap_usd']]
+    df_filtrado= df[['indice','id','symbol','name','rank','price_usd','percent_change_24h','percent_change_1h','market_cap_usd']]
 
     df_filtrado =df_filtrado.assign(Extraction_time =hora_formateada)
 
@@ -39,6 +43,14 @@ def Extraer_data():
     df_filtrado["percent_change_1h"]= df_filtrado["percent_change_1h"].astype("float64")
 
     df_filtrado["market_cap_usd"]= df_filtrado["market_cap_usd"].astype("float64")
+    
+    #Agrego la columna para saber si hubo una variacion del 5% o mas
+    for i in df_filtrado['percent_change_1h']:
+        if i >5:
+            diferencia= 1
+        else:
+            diferencia= 0
+        df_filtrado=df_filtrado.assign(Variacion_mayor_a_5=diferencia)
     
     df_filtrado=df_filtrado.to_dict()
     
@@ -105,10 +117,30 @@ def cargar_en_postgres():
     execute_values(cur, insert_sql, values)
     cur.execute("COMMIT")
     print('Proceso terminado')
+    
+def enviar_mail():
+    load_dotenv()
+    email_sender = "luchitrading@gmail.com"
+    password = os.getenv("PASSWORD")
+    email_reciver = "luchimoreyra@gmail.com"
+    subject = ""
+    body = ""
+
+    em = EmailMessage()
+    em["From"] = email_sender
+    em["To"] = email_reciver
+    em["Subject"] = subject
+    em.set_content(body)
+    context = ssl.create_default_context()
+
+    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context = context) as smtp:
+        smtp.login(email_sender, password)
+        smtp.sendmail(email_sender, email_reciver,em.as_string())
+    
 
 
-"""#Subida de datos a la base de datos
-Extraer_data()
+#Subida de datos a la base de datos
+"""Extraer_data()
 conexion_tabla()
-cargar_en_postgres()"""
-
+cargar_en_postgres()
+"""
