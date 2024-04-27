@@ -9,10 +9,16 @@ import pandas as pd
 import psycopg2
 import os 
 
+from email.message import EmailMessage
+import ssl
+import smtplib
+
+
 from psycopg2.extras import execute_values
 
 
-from  ExtracAPI import Extraer_data, conexion_tabla, cargar_en_postgres 
+from  ExtracAPI import Extraer_data, conexion_tabla, cargar_en_postgres,enviar_mail
+
 dag_path = os.getcwd()
 default_args = {
     'start_date': datetime(2024, 4, 2),
@@ -50,8 +56,8 @@ task_3 = PythonOperator(
 )
 
 task_4 = PythonOperator(
-    task_id='enviar_mail',
-    python_callable=enviar_mail,
+    task_id='enviar_email',
+    python_callable= enviar_mail ,
     dag=ingestion_dag,
 )
 

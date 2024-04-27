@@ -5,10 +5,12 @@ from datetime import date
 
 import psycopg2
 import os 
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 from email.message import EmailMessage
 import ssl
 import smtplib
+
+from airflow.models import Variable
 
 from psycopg2.extras import execute_values
 
@@ -59,10 +61,10 @@ def Extraer_data():
 
 
 #Conexion con Amazon redshift
-url= "data-engineer-cluster.cyhh5bfevlmn.us-east-1.redshift.amazonaws.com"
-data_base= "data-engineer-database"
-user= "luchitrading_coderhouse"
-pwd= "6vJ8t1V7Tp"
+url= Variable.get("URL-BD")
+data_base= Variable.get("BD")
+user= Variable.get("Usuario_BD")
+pwd= Variable.get("BD-PASSWORD")
 
 def conexion_tabla():
     try:
@@ -119,12 +121,14 @@ def cargar_en_postgres():
     print('Proceso terminado')
     
 def enviar_mail():
-    load_dotenv()
-    email_sender = "luchitrading@gmail.com"
-    password = os.getenv("PASSWORD")
-    email_reciver = "luchimoreyra@gmail.com"
-    subject = ""
-    body = ""
+    #load_dotenv()
+    email_sender = "Email_Sender"
+    password = "Email_PASSWORD"
+    email_reciver = "Email_reciver"
+    subject = "Aviso de Subida de datos"
+    hora_actual = pd.to_datetime('now')
+    hora_formateada = hora_actual.strftime("%D")
+    body = f"Los datos fueron subido correctamente el dia {hora_formateada}"
 
     em = EmailMessage()
     em["From"] = email_sender
@@ -136,6 +140,7 @@ def enviar_mail():
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context = context) as smtp:
         smtp.login(email_sender, password)
         smtp.sendmail(email_sender, email_reciver,em.as_string())
+    print("email enviado")
     
 
 
@@ -143,4 +148,6 @@ def enviar_mail():
 """Extraer_data()
 conexion_tabla()
 cargar_en_postgres()
+enviar_mail()
+
 """
