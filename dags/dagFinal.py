@@ -37,18 +37,24 @@ task_1 = PythonOperator(
     dag=ingestion_dag,
 )
 
-task_3 = PythonOperator(
+task_2 = PythonOperator(
     task_id='conexionconredshift',
     python_callable=conexion_tabla,
     dag=ingestion_dag,
 )
 
-task_4 = PythonOperator(
+task_3 = PythonOperator(
     task_id='CargaenDB',
     python_callable=cargar_en_postgres,
     dag=ingestion_dag,
 )
 
+task_4 = PythonOperator(
+    task_id='enviar_mail',
+    python_callable=enviar_mail,
+    dag=ingestion_dag,
+)
 
 
-task_1 >> task_3 >> task_4
+
+task_1 >> task_2 >> task_3 >> task_4
