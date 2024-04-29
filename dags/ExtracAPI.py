@@ -61,11 +61,11 @@ def Extraer_data():
 
 
 #Conexion con Amazon redshift
-url= Variable.get("URL-BD")
-data_base= Variable.get("BD")
-user= Variable.get("Usuario_BD")
-pwd= Variable.get("BD-PASSWORD")
-
+url= Variable.get("URL-BD") #"data-engineer-cluster.cyhh5bfevlmn.us-east-1.redshift.amazonaws.com" 
+data_base= Variable.get("BD") #'data-engineer-database' 
+user= Variable.get("Usuario_BD") #'luchitrading_coderhouse'  
+pwd= Variable.get("BD-PASSWORD") #'6vJ8t1V7Tp' 
+port_variable= Variable.get('Port_BD') #'5439' 
 def conexion_tabla():
     try:
         conn = psycopg2.connect(
@@ -73,7 +73,7 @@ def conexion_tabla():
             dbname=data_base,
             user=user,
             password=pwd,
-            port='5439'
+            port=port_variable
         )
         print("Conectado a Postgres")
         
@@ -122,9 +122,9 @@ def cargar_en_postgres():
     
 def enviar_mail():
     #load_dotenv()
-    email_sender = "Email_Sender"
-    password = "Email_PASSWORD"
-    email_reciver = "Email_reciver"
+    email_sender =  "Email_Sender" #"luchitrading@gmail.com"
+    password ="Email_PASSWORD" #
+    email_reciver = "Email_reciver" # "luchimoreyra@gmail.com"  #
     subject = "Aviso de Subida de datos"
     hora_actual = pd.to_datetime('now')
     hora_formateada = hora_actual.strftime("%D")
@@ -149,5 +149,4 @@ def enviar_mail():
 conexion_tabla()
 cargar_en_postgres()
 enviar_mail()
-
 """

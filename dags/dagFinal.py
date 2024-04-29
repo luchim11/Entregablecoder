@@ -35,7 +35,7 @@ ingestion_dag = DAG(
     catchup=False
 )
 
-
+"""
 task_1 = PythonOperator(
     task_id='Extraerdata',
     python_callable=Extraer_data,
@@ -54,7 +54,7 @@ task_3 = PythonOperator(
     python_callable=cargar_en_postgres,
     dag=ingestion_dag,
 )
-
+"""
 task_4 = PythonOperator(
     task_id='enviar_email',
     python_callable= enviar_mail ,
@@ -63,4 +63,5 @@ task_4 = PythonOperator(
 
 
 
-task_1 >> task_2 >> task_3 >> task_4
+#task_1 >> task_2 >> task_3 >> 
+task_4
